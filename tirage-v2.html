@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>html{color-scheme:light}body{margin:0;font-size:16px}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Le Grand Tirage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;600;700&display=swap">
+<style>
+/* Concept: une borne de jeu télé posée sur un fond lilas. Gros boutons à ombre dure, une machine à rouleau au centre, tout le suspense dans la machine. */
+:root{
+  --bg:#EFEBFB; --surface:#FFFFFF; --ink:#1D1A46; --muted:#625E8E; --line:#D6D0F2;
+  --accent:#FF4F7B; --accent-ink:#FFFFFF; --sun:#FFC93C; --sun-ink:#3A2A00; --ok:#0F9D8C;
+  --edge:#1D1A46; --win:#FFF3C4;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14112B; --surface:#211D47; --ink:#F1EEFF; --muted:#A8A3D4; --line:#38336B;
+    --accent:#FF6B90; --accent-ink:#2A0613; --sun:#FFD15C; --sun-ink:#3A2A00; --ok:#35C7B5;
+    --edge:#07061A; --win:#4A3F12; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14112B; --surface:#211D47; --ink:#F1EEFF; --muted:#A8A3D4; --line:#38336B;
+  --accent:#FF6B90; --accent-ink:#2A0613; --sun:#FFD15C; --sun-ink:#3A2A00; --ok:#35C7B5;
+  --edge:#07061A; --win:#4A3F12; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));min-height:100%}
+main{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.05}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.badge{background:var(--sun);color:var(--sun-ink);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:6px 10px;border-radius:6px;border:2px solid var(--edge)}
+.sound{background:transparent;border:2px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--muted)}
+.sound[aria-pressed="true"]{border-color:var(--ink);color:var(--ink)}
+.hero h1{font-size:clamp(40px,12vw,60px);font-weight:800;letter-spacing:-.02em}
+.hero h1 span{color:var(--accent)}
+.hero p{margin:10px 0 0;color:var(--muted);max-width:44ch}
+.testbar{background:var(--sun);color:var(--sun-ink);border:2px dashed var(--edge);border-radius:10px;padding:10px 14px;font-weight:600;font-size:14px}
+
+h2.q{font-size:26px;font-weight:800}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.pick{display:flex;align-items:center;gap:10px;text-align:left;background:var(--surface);border:2px solid var(--edge);border-radius:14px;padding:8px 12px 8px 8px;box-shadow:3px 3px 0 var(--edge);font-weight:700;transition:transform .12s,box-shadow .12s;min-width:0}
+.pick span.n{font-size:15px;overflow-wrap:normal}
+.pick:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--edge)}
+.pick:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--edge)}
+
+.av{--s:48px;width:var(--s);height:var(--s);border-radius:50%;display:grid;place-items:center;flex:none;overflow:hidden;
+  background:hsl(var(--h,260) 62% 42%);color:#fff;font-family:var(--display);font-weight:800;font-size:calc(var(--s)*.46);border:2px solid var(--edge)}
+.av img{width:100%;height:100%;object-fit:cover}
+
+.card{background:var(--surface);border:2px solid var(--edge);border-radius:20px;box-shadow:5px 5px 0 var(--edge);padding:22px;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center}
+.card h2{font-size:30px;font-weight:800}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+
+.btn{border:2px solid var(--edge);border-radius:12px;padding:12px 20px;font-weight:700;background:var(--surface);box-shadow:3px 3px 0 var(--edge);transition:transform .1s,box-shadow .1s}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--edge)}
+.btn.main{background:var(--accent);color:var(--accent-ink)}
+.btn.big{width:100%;font-family:var(--display);font-weight:800;font-size:22px;padding:16px 20px;letter-spacing:.01em}
+.btn[disabled]{opacity:.55;pointer-events:none}
+.link{background:none;border:0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;padding:6px;font-weight:600}
+
+.machine{background:var(--surface);border:2px solid var(--edge);border-radius:24px;box-shadow:6px 6px 0 var(--edge);padding:16px;display:flex;flex-direction:column;gap:14px}
+.mhead{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.dots{display:flex;gap:6px}
+.dots i{width:12px;height:12px;border-radius:50%;border:2px solid var(--edge);background:transparent}
+.dots i.on{background:var(--accent)}
+
+.reel{--H:84px;position:relative;height:calc(var(--H)*3);overflow:hidden;border-radius:16px;background:var(--bg);border:2px solid var(--edge)}
+.strip{position:absolute;left:0;right:0;top:0;z-index:1;opacity:0;will-change:transform}
+.strip.on{opacity:1}
+.item{height:var(--H);display:flex;align-items:center;justify-content:center;gap:12px;padding:0 12px;font-family:var(--display);font-weight:800;font-size:clamp(24px,7vw,32px);white-space:nowrap}
+.item .av{--s:52px}
+.item.win{animation:pop .5s cubic-bezier(.2,1.6,.4,1) both}
+.reel::before,.reel::after{content:"";position:absolute;left:0;right:0;height:var(--H);z-index:2;pointer-events:none}
+.reel::before{top:0;background:linear-gradient(var(--bg) 8%,transparent)}
+.reel::after{bottom:0;background:linear-gradient(transparent,var(--bg) 92%)}
+.band{position:absolute;left:0;right:0;top:var(--H);height:var(--H);z-index:0;pointer-events:none;border-block:3px solid var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);transition:background .3s}
+.hit .band{background:var(--win)}
+.mystery{position:absolute;inset:0;z-index:3;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:96px;color:var(--accent);transition:opacity .25s;animation:bob 1.6s ease-in-out infinite}
+.mystery.off{opacity:0;animation:none}
+.tense{animation:shake .12s linear infinite}
+.tense .band{border-color:var(--sun);animation:blink .5s steps(2) infinite}
+.cap{margin:0;text-align:center;font-weight:700;min-height:2.9em;display:grid;place-items:center}
+.found{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;min-height:0}
+.chip{display:flex;align-items:center;gap:8px;background:var(--surface);border:2px solid var(--edge);border-radius:999px;padding:4px 14px 4px 4px;font-weight:700}
+.chip .av{--s:32px;border-width:2px}
+
+.team{display:flex;flex-direction:column;gap:12px;width:100%}
+.member{display:flex;align-items:center;gap:14px;background:var(--bg);border:2px solid var(--edge);border-radius:16px;padding:10px 14px 10px 10px;text-align:left;font-family:var(--display);font-weight:800;font-size:24px;min-width:0}
+.member small{display:block;font-family:var(--body);font-weight:600;font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.member .av{--s:60px}
+.member.me{background:var(--win)}
+.teamname{font-size:34px!important}
+.tag{background:var(--sun);color:var(--sun-ink);border:2px solid var(--edge);border-radius:6px;font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:4px 8px}
+.note{color:var(--muted);font-size:14px;text-align:center;margin:0}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
+
+@keyframes pop{0%{transform:scale(.6)}100%{transform:scale(1.08)}}
+@keyframes bob{0%,100%{transform:translateY(-6px) rotate(-4deg)}50%{transform:translateY(6px) rotate(4deg)}}
+@keyframes shake{0%{transform:translate(0,0)}25%{transform:translate(1.5px,-1px)}50%{transform:translate(-1.5px,1px)}75%{transform:translate(1px,1.5px)}100%{transform:translate(0,0)}}
+@keyframes blink{50%{border-color:var(--accent)}}
+.beat .reel{animation:beat .28s ease-out}
+@keyframes beat{0%{transform:scale(1)}30%{transform:scale(1.025)}100%{transform:scale(1)}}
+.bignum{font-family:var(--display);font-weight:800;font-size:clamp(130px,42vw,190px);line-height:.9;color:var(--accent);-webkit-text-stroke:3px var(--edge);text-shadow:6px 6px 0 var(--edge);animation:numpop .9s cubic-bezier(.2,1.7,.4,1) .15s both}
+.intro h2{font-size:28px}
+.lead{margin:0;font-size:18px;max-width:30ch}
+.pips{display:flex;gap:12px;justify-content:center}
+.pip{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;background:var(--sun);color:var(--sun-ink);border:2px solid var(--edge);box-shadow:3px 3px 0 var(--edge);font-family:var(--display);font-weight:800;font-size:30px;animation:pipin .6s cubic-bezier(.2,1.7,.4,1) var(--d) both}
+@keyframes numpop{0%{transform:scale(0) rotate(-14deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes pipin{0%{transform:translateY(24px) scale(0)}100%{transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+#screen>*{animation:rise .35s ease both}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head><body>
+
+<main>
+  <div class="top">
+    <span class="badge">Quiz Room</span>
+    <button class="sound" id="sound" aria-pressed="true">Son activé</button>
+  </div>
+  <header class="hero">
+    <h1>Le Grand <span>Tirage</span></h1>
+    <p>15 joueurs, 6 équipes, un seul suspense. Dis-nous qui tu es, et la roulette s'occupe du reste.</p>
+  </header>
+  <div id="testbar" class="testbar" hidden>Mode test : les équipes affichées ici sont fictives et changent à chaque essai.</div>
+  <div id="screen" style="display:contents"></div>
+</main>
+<canvas id="confetti"></canvas>
+
+<script>
+(function(){
+"use strict";
+const PLAYERS=["Quentin","Capucine","Margaux","Rania","Abel","Marie","Ilounès","Mélanie","Flore","Emmanuelle","Mario","Florentine","Kévin","Marwan","Pierre"];
+const LIVE=true;
+const BLOB="Kg5LFBMCCk9LVUs2FxxPLhQHHx8TGhdNNRwaCh0BBg8dEBpYXk9NABQYCx8AHE1XUS5LOxAKA09dVUs3Ex0GAlNZSVg/Dh0EFFc0B15PFE8fFAQfUFVPTz0QGlomrMUZFAZJHlUuAh0eAAUfUENPTxwQBBgXHRxPS1UyWD8OHQoQABFYXk9NILLcBRscBgpPXVVLPx8CDgMEEAUWF00yEF1VElgcDgIIU09JWCMaBhcLVSISEwMGCxBXRVpQAgoAExAbCVBVTzZTJwgUGw5NQVFXLxYdHQpPXVVLORMfGg4YGwxYLxJDTQpXBxsfCk1XUVclHwFPIgQfHEQtGwQGHbLcDRMTTUNNUxgMFxAKHR5TT0khUCYDAgQbqtIBTUNNUyQcHxwbBgNTKBRWUhRNAxAYDFhIT00hFAZJNBcaHQIfEBpaIQ4aGxASDAlQQ09PHBAEGBcdHE9LVTJYIgYKHwMQS1ZSTSIMAwIIFFAyEkFRDksUEwIKT0tVSzYXHE85HgAdVyEOGQIYB0tWUk0CCBwXDAgBTVVNKlcvFh0dCgMFHAcfUENPTzq2wAwbAU0wDCg=";
+const PHOTOS={}; /* nom -> data URI, rempli plus tard si besoin */
+const FAKE_NAMES=["Les Fusibles","Les Sans-Filtre","Les Gros Cerveaux","Les Réponses Bonus","Les Tête-en-l'Air","Les Quizzés"];
+const reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isTest=!LIVE||location.hash==="#test";
+const H=84;
+
+const $=s=>document.querySelector(s);
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function hue(n){let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))%360;return h}
+function av(n,s){const p=PHOTOS[n];return p?`<span class="av" style="--s:${s}px"><img src="${p}" alt=""></span>`:`<span class="av" style="--s:${s}px;--h:${hue(n)}">${n[0]}</span>`}
+
+/* ---------- données ---------- */
+function decode(){
+  const bin=atob(BLOB),key="quizroom",b=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i)^key.charCodeAt(i%key.length);
+  return JSON.parse(new TextDecoder().decode(b));
+}
+function fakeDraw(){
+  const p=shuffle(PLAYERS),sizes=[3,3,3,2,2,2],names=shuffle(FAKE_NAMES);let i=0;
+  return sizes.map((s,k)=>{const m=p.slice(i,i+s);i+=s;return{name:names[k],members:m}});
+}
+let teams=isTest?fakeDraw():decode();
+
+/* ---------- son ---------- */
+let ctx=null,soundOn=true;
+function audio(){if(!ctx){try{ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ctx&&ctx.state==="suspended")ctx.resume();return ctx}
+function beep(f,d,type,vol,when){const a=audio();if(!a||!soundOn)return;const t=a.currentTime+(when||0),o=a.createOscillator(),g=a.createGain();o.type=type||"square";o.frequency.value=f;g.gain.setValueAtTime(vol||.05,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.02)}
+let lastTick=0;
+function tick(){const n=performance.now();if(n-lastTick<45)return;lastTick=n;beep(520+Math.random()*80,.04,"square",.035)}
+function thump(g){g=g||.22;[0,g].forEach((w,i)=>{beep(i?85:100,.3,"sine",.5,w);beep(i?170:200,.12,"triangle",.14,w)})}
+function fanfare(){[523,659,784,1047].forEach((f,i)=>beep(f,.35,"triangle",.12,i*.11));beep(1319,.7,"triangle",.12,.5)}
+$("#sound").addEventListener("click",e=>{soundOn=!soundOn;e.currentTarget.setAttribute("aria-pressed",String(soundOn));e.currentTarget.textContent=soundOn?"Son activé":"Son coupé";audio()});
+
+/* ---------- confettis ---------- */
+function confetti(){
+  if(reduce)return;
+  const c=$("#confetti"),x=c.getContext("2d"),dpr=window.devicePixelRatio||1;
+  c.width=innerWidth*dpr;c.height=innerHeight*dpr;x.scale(dpr,dpr);
+  const st=getComputedStyle(document.documentElement);
+  const cols=["--accent","--sun","--ok","--ink"].map(v=>st.getPropertyValue(v).trim()||"#f55");
+  const ps=Array.from({length:150},()=>({x:innerWidth/2,y:innerHeight*.45,vx:(Math.random()-.5)*16,vy:-Math.random()*15-4,r:Math.random()*6+3,c:cols[Math.floor(Math.random()*cols.length)],a:Math.random()*6,va:(Math.random()-.5)*.4}));
+  const t0=performance.now();
+  (function f(now){
+    const k=(now-t0)/2800;x.clearRect(0,0,innerWidth,innerHeight);
+    ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.vx*=.99;p.a+=p.va;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.globalAlpha=Math.max(0,1-k);x.fillStyle=p.c;x.fillRect(-p.r,-p.r/2,p.r*2,p.r);x.restore()});
+    if(k<1)requestAnimationFrame(f);else x.clearRect(0,0,innerWidth,innerHeight);
+  })(t0);
+}
+
+/* ---------- état et écrans ---------- */
+const state={me:null,team:null,partners:[],k:0};
+const screen=$("#screen");
+if(isTest)$("#testbar").hidden=false;
+
+function showPick(){
+  state.me=null;
+  screen.innerHTML=`<h2 class="q">Qui es-tu ?</h2>
+    <div class="grid">${[...PLAYERS].sort((a,b)=>a.localeCompare(b,"fr")).map(n=>`<button class="pick" data-n="${n}">${av(n,38)}<span class="n">${n}</span></button>`).join("")}</div>`;
+  screen.querySelectorAll(".pick").forEach(b=>b.addEventListener("click",()=>showConfirm(b.dataset.n)));
+}
+function showConfirm(n){
+  screen.innerHTML=`<div class="card">${av(n,110)}<h2>Tu es ${n} ?</h2>
+    <p class="note">Une fois que tu auras lancé la roulette, ton équipe est révélée.</p>
+    <div class="row"><button class="btn main" id="yes">Oui, c'est moi</button><button class="btn" id="no">Non, retour</button></div></div>`;
+  $("#yes").addEventListener("click",()=>{audio();begin(n)});
+  $("#no").addEventListener("click",showPick);
+}
+function begin(n){
+  state.me=n;
+  state.team=teams.find(t=>t.members.includes(n));
+  state.partners=state.team.members.filter(m=>m!==n);
+  state.k=0;
+  showIntro();
+}
+
+function showIntro(){
+  const n=state.partners.length;
+  screen.innerHTML=`<div class="card intro">
+    <span class="tag">${state.me}, voici ta mission</span>
+    <div class="bignum" aria-hidden="true">${n}</div>
+    <h2>${n>1?"coéquipiers":"coéquipier"} à découvrir</h2>
+    <p class="lead">${n>1?`Tu vas devoir tourner la roulette <b>${n} fois</b> : une fois par coéquipier.`:`Tu vas devoir tourner la roulette <b>1 fois</b>.`}</p>
+    <div class="pips" aria-hidden="true">${Array.from({length:n},(_,i)=>`<span class="pip" style="--d:${(.6+i*.25).toFixed(2)}s">?</span>`).join("")}</div>
+    <button class="btn main big" id="start">${n>1?"Compris, c'est parti":"C'est parti"}</button></div>`;
+  $("#start").addEventListener("click",showStage);
+  beep(392,.12,"triangle",.1);beep(523,.12,"triangle",.1,.12);
+}
+
+function buildStrip(others,target,T){
+  /* jamais deux fois le même nom dans la fenêtre visible, et la cible n'apparaît pas autour de sa place finale */
+  const seq=[];
+  for(let i=0;i<T+4;i++){
+    if(i===T){seq.push(target);continue}
+    const avoid=[seq[i-1],seq[i-2],seq[i-3]].filter(Boolean);
+    if(i>=T-3&&i<=T+3)avoid.push(target);
+    seq.push(shuffle(others.filter(o=>!avoid.includes(o)))[0]);
+  }
+  return seq;
+}
+const easeOutCubic=k=>1-Math.pow(1-k,3);
+const easeInOut=k=>k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+
+function showStage(){
+  const n=state.partners.length,k=state.k;
+  const found=state.partners.slice(0,k);
+  screen.innerHTML=`<section class="machine" id="machine">
+      <div class="mhead"><span>Coéquipier ${k+1} sur ${n}</span><span class="dots">${state.partners.map((_,i)=>`<i class="${i<k?"on":""}"></i>`).join("")}</span></div>
+      <div class="reel" id="reel"><div class="strip" id="strip"></div><div class="mystery" id="mystery">?</div><div class="band"></div></div>
+      <p class="cap" id="cap" aria-live="polite">${k===0?`Salut ${state.me}. Tu as ${n} coéquipier${n>1?"s":""} à découvrir.`:(k===n-1?"Dernier lancer. Plus qu'un coéquipier !":"Et le suivant ?")}</p>
+      <button class="btn main big" id="go">Lancer la roulette${n>1?` (${k+1}/${n})`:""}</button>
+    </section>
+    <div class="found">${found.map(f=>`<span class="chip">${av(f,32)}${f}</span>`).join("")}</div>`;
+  $("#go").addEventListener("click",()=>spin(state.partners[k]));
+}
+
+async function spin(target){
+  const go=$("#go"),strip=$("#strip"),machine=$("#machine"),cap=$("#cap");
+  go.disabled=true;audio();
+  const others=PLAYERS.filter(n=>n!==state.me);
+  const T=reduce?14:44+Math.floor(Math.random()*8);
+  const seq=buildStrip(others,target,T);
+  strip.innerHTML=seq.map(n=>`<div class="item">${av(n,52)}<span>${n}</span></div>`).join("");
+  $("#mystery").classList.add("off");strip.classList.add("on");
+  cap.textContent="La roulette tourne…";
+  let lastI=-1,lastP=0,lastT=performance.now();
+  const setP=p=>{
+    strip.style.transform=`translateY(${(1-p)*H}px)`;
+    const i=Math.floor(p+.5);if(i!==lastI){lastI=i;tick()}
+    const now=performance.now(),sp=Math.abs(p-lastP)*H/Math.max(1,now-lastT)*1000;
+    strip.style.filter=sp>900?`blur(${Math.min(3,sp/2200).toFixed(1)}px)`:"none";
+    lastP=p;lastT=now;
+  };
+  const anim=(a,b,d,ease)=>new Promise(res=>{const t0=performance.now();(function f(now){const k=Math.min(1,(now-t0)/d);setP(a+(b-a)*ease(k));k<1?requestAnimationFrame(f):res()})(t0)});
+  setP(0);
+  const dA=reduce?1100:9500,dB=reduce?500:2800,tStart=performance.now();
+  const prog=()=>Math.min(1,(performance.now()-tStart)/(dA+dB));
+  const lines=[[.12,"Elle ralentit…"],[.28,"Le suspense monte…"],[.45,"Ça se précise…"],[.6,"Presque… presque…"],[.72,"Ne bouge plus…"]];
+  let beating=true,back=false,lastLine="";
+  const watcher=setInterval(()=>{const p=prog();let txt="La roulette tourne…";for(const [th,t] of lines)if(p>=th)txt=t;if(back)txt="Attends… ça repart en arrière !";if(txt!==lastLine){lastLine=txt;cap.textContent=txt}if(p>.5)machine.classList.add("tense")},100);
+  if(!reduce)(async()=>{while(beating){const iv=1000-650*prog();thump(Math.min(.22,iv/1000*.4));machine.classList.remove("beat");void machine.offsetWidth;machine.classList.add("beat");await wait(iv)}})();
+  await anim(0,T+1,dA,k=>1-Math.pow(1-k,2.4));
+  back=true;
+  await anim(T+1,T,dB,easeOutCubic);
+  beating=false;clearInterval(watcher);
+  strip.style.filter="none";
+  machine.classList.remove("tense");machine.classList.add("hit");
+  strip.children[T].classList.add("win");
+  cap.textContent=`C'est ${target} !`;
+  fanfare();confetti();
+  const last=state.k===state.partners.length-1;
+  const g2=go.cloneNode(true);   /* clone : retire l'ancien écouteur "spin" */
+  g2.textContent=last?"Voir mon nom d'équipe":"Révéler le suivant";
+  g2.disabled=false;
+  g2.addEventListener("click",()=>{state.k++;last?showResult(true):showStage()});
+  go.replaceWith(g2);
+}
+
+function showResult(fresh){
+  const t=state.team,n=t.members.length;
+  if(!isTest)store.set("qr_me",state.me);
+  const ordered=[state.me,...state.partners];
+  screen.innerHTML=`<div class="card">
+      <span class="tag">Équipe de ${n}</span>
+      <h2 class="teamname">${t.name}</h2>
+      <div class="team">${ordered.map((m,i)=>`<div class="member ${i===0?"me":""}">${av(m,60)}<span>${m}<small>${i===0?"toi":"coéquipier"}</small></span></div>`).join("")}</div>
+      <p class="note">${isTest?"Tirage fictif pour tester l'application.":"Ton équipe est définitive. Tu peux fermer cette page et revenir quand tu veux."}</p>
+      <div class="row">
+        <button class="btn" id="replay">Revoir l'animation</button>
+        ${isTest?'<button class="btn" id="again">Autre tirage fictif</button><button class="btn" id="other">Changer de joueur</button>':'<button class="link" id="notme">Ce n\'est pas moi</button>'}
+      </div></div>`;
+  if(fresh){fanfare();confetti()}
+  $("#replay").addEventListener("click",()=>{state.k=0;showStage()});
+  if(isTest){
+    $("#again").addEventListener("click",()=>{teams=fakeDraw();begin(state.me)});
+    $("#other").addEventListener("click",()=>{teams=fakeDraw();showPick()});
+  }else{
+    $("#notme").addEventListener("click",()=>{store.del("qr_me");showPick()});
+  }
+}
+
+/* ---------- démarrage ---------- */
+const saved=!isTest&&store.get("qr_me");
+if(saved&&PLAYERS.includes(saved)){
+  state.me=saved;state.team=teams.find(t=>t.members.includes(saved));
+  state.partners=state.team.members.filter(m=>m!==saved);state.k=state.partners.length;
+  showResult(false);
+}else showPick();
+})();
+</script>
+
+</body></html>
